@@ -1,8 +1,0 @@
-2015/06/13 17:44:10 Req: {"verify":"\u0000"} Rsp: {"msg":"Please Login first!","status":"fail"}
-2015/06/13 17:48:20 Req: {"verify":"\u0000"} Rsp: {"msg":"Please Login first!","status":"fail"}
-2015/06/13 17:50:21 Req: {"verify":"\u0000"} Rsp: {"msg":"Please Login first!","status":"fail"}
-2015/06/13 18:05:56 Req: {"verift":"e95f4661a4681c5c4cdb161687b2eed6"} Rsp: {"msg":"Please Login first!","status":"fail"}
-2015/06/13 18:07:54 Req: {"verift":"4285a5474d64780033aa7b40363ef8bd"} Rsp: {"msg":"Please Login first! Not Find","status":"fail"}
-2015/06/13 18:10:38 Req: {"verift":"071054e17b44f1f6ed9b5edbaf1c57d7"} Rsp: {"msg":"Please Login first! Not Find","status":"fail"}
-2015/06/13 18:11:58 Req: {"verify":"69f190f23951e0643622dc2f30cf2179"} Rsp: {"msg":"success","status":"1"}
-2015/06/13 18:12:38 Req: {"verify":"2c7d2e6f3568a2eb9a159cc4a25648c9"} Rsp: {"msg":"success","status":"1"}
