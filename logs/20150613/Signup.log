@@ -1,0 +1,5 @@
+2015/06/13 17:22:51 Req: {"account":"aison","pwd":"e10adc3949ba59abbe56e057f20f883e"} Rsp: {"msg":"Signup fail,account is exists","status":"0"}
+2015/06/13 17:23:05 Req: {"account":"aison","pwd":"e10adc3949ba59abbe56e057f20f883e"} Rsp: {"msg":"Signup fail,account is exists","status":"0"}
+2015/06/13 17:24:10 Req: {"account":"ella","pwd":"e10adc3949ba59abbe56e057f20f883e"} Rsp: {"msg":"Error 1054: Unknown column 'area_id' in 'field list'","status":"0"}
+2015/06/13 17:36:31 Req: {"account":"ella","pwd":"e10adc3949ba59abbe56e057f20f883e"} Rsp: {"msg":"Signup success,uid :100003 role id:100001","status":"1"}
+2015/06/13 17:36:41 Req: {"account":"ella","pwd":"e10adc3949ba59abbe56e057f20f883e"} Rsp: {"msg":"Signup fail,account is exists","status":"0"}
