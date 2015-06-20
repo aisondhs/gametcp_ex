@@ -7,9 +7,22 @@ $port = 8989;
 $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)or die("Could not create  socket\n");
 $connection = socket_connect($socket, $host, $port) or die("Could not connet server\n");
 
-$request = array("account"=>"ella","pwd"=>md5("123456"));
+$request = array("account"=>"ella","pwd"=>"123456","srvid"=>"1");
 $reqContent = json_encode($request);
-$msgId = 101;
+$msgId = 100;  //Signup
+$data = pack("n",strlen($reqContent)+4).pack("n", $msgId).$reqContent;
+socket_write($socket, $data) or die("Write failed\n");
+$rspdata = socket_read($socket, 1024);
+    
+$str = substr($rspdata,4)."\n";
+$retData = json_decode($str,true);
+print_r($retData);
+echo "\n";
+
+
+//$request = array("account"=>"ella","pwd"=>"123456","srvid"=>"1");
+//$reqContent = json_encode($request);
+$msgId = 101;  //Login
 $data = pack("n",strlen($reqContent)+4).pack("n", $msgId).$reqContent;
 socket_write($socket, $data) or die("Write failed\n");
 
@@ -22,7 +35,8 @@ echo "\n";
 
 $request = array("verify"=>$retData["token"]);
 $reqContent = json_encode($request);
-$msgId = 0;
+
+$msgId = 0; // test verify
 $data = pack("n",strlen($reqContent)+4).pack("n", $msgId).$reqContent;
 socket_write($socket, $data) or die("Write failed\n");
 

@@ -50,9 +50,12 @@ func (s *Server) Start(listener *net.TCPListener, acceptTimeout time.Duration) {
 		if err != nil {
 			continue
 		}
-
+		conn.SetReadDeadline(time.Now().Add(acceptTimeout))
+		conn.SetWriteDeadline(time.Now().Add(acceptTimeout))
+		//conn.SetKeepAlivePeriod(acceptTimeout)
 		go newConn(conn, s).Do()
 	}
+
 }
 
 // Stop stops service

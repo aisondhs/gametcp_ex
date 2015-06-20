@@ -3,7 +3,6 @@ package redis
 import (
 	//"bytes"
 	"errors"
-	"fmt"
 	"github.com/Unknwon/goconfig"
 	"github.com/garyburd/redigo/redis"
 	"strconv"
@@ -158,7 +157,6 @@ func (r *myRedis) Exists(key string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	fmt.Println("test")
 	return res.(int64) == 1, nil
 }
 
@@ -697,7 +695,9 @@ func (r *myRedis) Hmget(key string, params []string) (map[string](string), error
 	}
 	var data = make(map[string](string), len(params))
 	for k, v := range params {
-		data[v] = res[k]
+		if res[k] != "" {
+			data[v] = res[k]
+		}
 	}
 	return data, nil
 }
@@ -714,7 +714,9 @@ func (r *myRedis) Hgetall(key string) (map[string](string), error) {
 	lenghth := len(res)
 	var data = make(map[string](string), lenghth/2)
 	for i := 0; i < lenghth; i = i + 2 {
-		data[res[i]] = res[i+1]
+		if res[i+1] != "" {
+			data[res[i]] = res[i+1]
+		}
 	}
 	return data, nil
 }

@@ -1,10 +1,10 @@
 package models
 
 type RoleTable struct {
-	RoleId   int64 `xorm:"pk autoincr"`
-	Uid      int64
-	Areaid   int32
-	Ctime    int64
+	RoleId int64 `xorm:"pk autoincr 'RoleId'"`
+	Uid    int64
+	Srvid  int32
+	Ctime  int64
 }
 
 func (this RoleTable) TableName() string {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net"
 	"os"
@@ -8,8 +9,6 @@ import (
 	"runtime"
 	"syscall"
 	"time"
-	"encoding/json"
-	//"fmt"
 
 	"github.com/Unknwon/goconfig"
 	"github.com/aisondhs/gametcp_ex/controllers"
@@ -55,11 +54,11 @@ func (this *Callback) OnMessage(c *gametcp.Conn, p protocol.Packet) bool {
 	reqContent := packet.GetBody()
 	msgId := packet.GetMsgId()
 	var obj interface{}
-	json.Unmarshal(reqContent,&obj)
+	json.Unmarshal(reqContent, &obj)
 	objparams := obj.(map[string]interface{})
 	var params map[string]string
 	params = make(map[string]string)
-	for k,v := range objparams {
+	for k, v := range objparams {
 		params[k] = v.(string)
 	}
 	methodName := actList[msgId]
@@ -67,32 +66,36 @@ func (this *Callback) OnMessage(c *gametcp.Conn, p protocol.Packet) bool {
 	var response map[string]string
 	response = make(map[string]string)
 
+	var rid string
+
 	if methodName != "Login" && methodName != "Signup" {
 		//verify
-		_,err := controllers.Verify(params["verify"])
+		verifyInfo, err := controllers.Verify(params["verify"])
 		if err != nil {
 			response["status"] = "fail"
-			response["msg"] = "Please Login first! "+err.Error()
+			response["msg"] = err.Error()
 		} else {
 			reflectData, err := funcs.Call(methodName, params)
-	        if err != nil {
-		        logger.PutLog(err.Error(), logdir, "error")
-	        }
-		    i := reflectData[0].Interface()
-		    response = i.(map[string]string)
+			if err != nil {
+				logger.PutLog(err.Error(), logdir, "error")
+			}
+			i := reflectData[0].Interface()
+			response = i.(map[string]string)
 		}
+		rid = verifyInfo["rid"]
 	} else {
 		reflectData, err := funcs.Call(methodName, params)
-	    if err != nil {
-		    logger.PutLog(err.Error(), logdir, "error")
-	    }
+		if err != nil {
+			logger.PutLog(err.Error(), logdir, "error")
+		}
 		i := reflectData[0].Interface()
 		response = i.(map[string]string)
+		rid = response["rid"]
 	}
-	rspBytes,_ := json.Marshal(response)
+	rspBytes, _ := json.Marshal(response)
 	rspPacket := protocol.NewPacket(rspBytes, msgId, false)
 	c.AsyncWritePacket(rspPacket, time.Second)
-	logmsg := "Req: " + string(reqContent) + " Rsp: " + string(rspBytes)
+	logmsg := rid + " Req: " + string(reqContent) + " Rsp: " + string(rspBytes)
 	logger.PutLog(logmsg, logdir, methodName)
 	return true
 }
@@ -130,7 +133,7 @@ func main() {
 	srv := gametcp.NewServer(config, &Callback{})
 
 	// starts service
-	go srv.Start(listener, time.Second)
+	go srv.Start(listener, time.Second*5)
 	logger.PutLog("listening:"+listener.Addr().String(), logdir, "info")
 
 	// catchs system signal

@@ -21,7 +21,7 @@ CREATE TABLE `role` (
 
   `Uid` int(11) NOT NULL DEFAULT 0,
 
-  `Areaid` mediumint(11) NOT NULL DEFAULT 0,
+  `Srvid` mediumint(11) NOT NULL DEFAULT 0,
 
   `Ctime` int(11) NOT NULL DEFAULT 0,
 

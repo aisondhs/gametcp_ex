@@ -1,9 +1,7 @@
 package main
 
 import (
-	"crypto/md5"
 	"encoding/binary"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/aisondhs/gametcp_ex/protocol"
@@ -18,16 +16,14 @@ func main() {
 	conn, err := net.DialTCP("tcp", nil, tcpAddr)
 	checkError(err)
 
-	var msgId uint16 = 101
-
-	m := md5.New()
-	m.Write([]byte("123456"))
+	var msgId uint16 = 100 // Sign up
 	var request map[string]string
 	request = make(map[string]string)
 	request["account"] = "ella"
-	request["pwd"] = hex.EncodeToString(m.Sum(nil))
+	request["pwd"] = "123456"
+	request["srvid"] = "1"
 
-	reqBytes,_ := json.Marshal(request)
+	reqBytes, _ := json.Marshal(request)
 
 	var reqBuff []byte = make([]byte, 4+len(reqBytes))
 
@@ -44,26 +40,30 @@ func main() {
 
 	body := p.GetBody()
 	var obj interface{}
-	json.Unmarshal(body,&obj)
+	json.Unmarshal(body, &obj)
 	objparams := obj.(map[string]interface{})
 	var params map[string]string
 	params = make(map[string]string)
-	for k,v := range objparams {
+	for k, v := range objparams {
 		params[k] = v.(string)
 	}
-    fmt.Println(params)
+	fmt.Println(params)
 
-    msgId = 0
-    var request2 map[string]string
-    request2 = make(map[string]string)
-	request2["verify"] = params["token"]
-	reqBytes2,_ := json.Marshal(request2)
+	msgId = 101 // login
 
-	var reqBuff2 []byte = make([]byte, 4+len(reqBytes2))
+	//var request map[string]string
+	//request = make(map[string]string)
+	//request["account"] = "ella"
+	//request["pwd"] = "123456"
+	//request["Areaid"] = 1
+
+	//reqBytes, _ := json.Marshal(request)
+
+	var reqBuff2 []byte = make([]byte, 4+len(reqBytes))
 
 	binary.BigEndian.PutUint16(reqBuff2[0:2], uint16(len(reqBuff2)))
 	binary.BigEndian.PutUint16(reqBuff2[2:4], msgId)
-	copy(reqBuff2[4:], reqBytes2)
+	copy(reqBuff2[4:], reqBytes)
 
 	// ping <--> pong
 	// write
@@ -74,14 +74,44 @@ func main() {
 
 	body2 := p2.GetBody()
 	var obj2 interface{}
-	json.Unmarshal(body2,&obj2)
+	json.Unmarshal(body2, &obj2)
 	objparams2 := obj2.(map[string]interface{})
 	var params2 map[string]string
 	params2 = make(map[string]string)
-	for k,v := range objparams2 {
+	for k, v := range objparams2 {
 		params2[k] = v.(string)
 	}
-    fmt.Println(params2)
+	fmt.Println(params2)
+
+	msgId = 0 // test verify
+	var request3 map[string]string
+	request3 = make(map[string]string)
+	request3["verify"] = params2["token"]
+	reqBytes3, _ := json.Marshal(request3)
+
+	var reqBuff3 []byte = make([]byte, 4+len(reqBytes3))
+
+	binary.BigEndian.PutUint16(reqBuff3[0:2], uint16(len(reqBuff3)))
+	binary.BigEndian.PutUint16(reqBuff3[2:4], msgId)
+	copy(reqBuff3[4:], reqBytes3)
+
+	// ping <--> pong
+	// write
+	conn.Write(reqBuff3)
+	// read
+	p3, err := protocol.ReadPacket(conn)
+	checkError(err)
+
+	body3 := p3.GetBody()
+	var obj3 interface{}
+	json.Unmarshal(body3, &obj3)
+	objparams3 := obj3.(map[string]interface{})
+	var params3 map[string]string
+	params3 = make(map[string]string)
+	for k, v := range objparams3 {
+		params3[k] = v.(string)
+	}
+	fmt.Println(params3)
 
 	conn.Close()
 }
