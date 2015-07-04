@@ -14,7 +14,7 @@ import (
 	"github.com/aisondhs/gametcp_ex/controllers"
 	"github.com/aisondhs/gametcp_ex/lib/funcmap"
 	"github.com/aisondhs/gametcp_ex/lib/gametcp"
-	"github.com/aisondhs/gametcp_ex/lib/logger"
+	"github.com/aisondhs/alog"
 	"github.com/aisondhs/gametcp_ex/protocol"
 )
 
@@ -39,12 +39,13 @@ func init() {
 	actList[0] = "Hello"
 	actList[100] = "Signup"
 	actList[101] = "Login"
+	alog.Init(logdir,alog.ROTATE_BY_DAY,false)
 }
 
 func (this *Callback) OnConnect(c *gametcp.Conn) bool {
 	addr := c.GetRawConn().RemoteAddr()
 	c.PutExtraData(addr)
-	logger.PutLog("OnConnect:"+addr.String(), logdir, "info")
+	alog.Info("OnConnect:"+addr.String())
 	return true
 }
 
@@ -76,18 +77,14 @@ func (this *Callback) OnMessage(c *gametcp.Conn, p protocol.Packet) bool {
 			response["msg"] = err.Error()
 		} else {
 			reflectData, err := funcs.Call(methodName, params)
-			if err != nil {
-				logger.PutLog(err.Error(), logdir, "error")
-			}
+			checkError(err)
 			i := reflectData[0].Interface()
 			response = i.(map[string]string)
 		}
 		rid = verifyInfo["rid"]
 	} else {
 		reflectData, err := funcs.Call(methodName, params)
-		if err != nil {
-			logger.PutLog(err.Error(), logdir, "error")
-		}
+		checkError(err)
 		i := reflectData[0].Interface()
 		response = i.(map[string]string)
 		rid = response["rid"]
@@ -95,13 +92,15 @@ func (this *Callback) OnMessage(c *gametcp.Conn, p protocol.Packet) bool {
 	rspBytes, _ := json.Marshal(response)
 	rspPacket := protocol.NewPacket(rspBytes, msgId, false)
 	c.AsyncWritePacket(rspPacket, time.Second)
-	logmsg := rid + " Req: " + string(reqContent) + " Rsp: " + string(rspBytes)
-	logger.PutLog(logmsg, logdir, methodName)
+
+	logData := alog.Mrecord{"rid":rid,"req":params,"rsp":response}
+	alog.Info(methodName,logData)
+
 	return true
 }
 
 func (this *Callback) OnClose(c *gametcp.Conn) {
-	logger.PutLog("OnClose:"+c.GetExtraData().(net.Addr).String(), logdir, "info")
+	alog.Info("OnClose:"+c.GetExtraData().(net.Addr).String())
 }
 
 func main() {
@@ -134,13 +133,13 @@ func main() {
 
 	// starts service
 	go srv.Start(listener, time.Second*5)
-	logger.PutLog("listening:"+listener.Addr().String(), logdir, "info")
+	alog.Info("listening:"+listener.Addr().String())
 
 	// catchs system signal
 	chSig := make(chan os.Signal)
 	signal.Notify(chSig, syscall.SIGINT, syscall.SIGTERM)
 	sig := <-chSig
-	logger.PutLog("listening:"+sig.String(), logdir, "error")
+	alog.Error("listening:"+sig.String())
 
 	// stops service
 	srv.Stop()
@@ -148,6 +147,6 @@ func main() {
 
 func checkError(err error) {
 	if err != nil {
-		logger.PutLog(err.Error(), logdir, "error")
+		alog.Error(err.Error())
 	}
 }
