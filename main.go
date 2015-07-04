@@ -29,7 +29,7 @@ var logdir string = "./logs"
 var actList map[uint16](string)
 
 func init() {
-	// 返回数据。
+	// bind func map
 	funcs = funcmap.NewFuncs(100)
 	actList = make(map[uint16](string), 100)
 
